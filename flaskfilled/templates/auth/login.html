@@ -5,9 +5,23 @@
 {% block page_content %}
 <div class="col-md-4">
     <form action="" method="POST">
-    Username: <input type="text" name="username"><br>
-    Password: <input type="password" name="password"><br>
-    <input type="submit">
+      {{ form.csrf_token }}
+      {% if form.csrf_token.errors %}
+        <div class="warning">You have submitted an invalid CSRF token</div>
+      {% endif %}
+      {{form.username.label }}: {{ form.username }}
+      {% if form.username.errors %}
+        {% for error in form.username.errors %}
+          {{ error }}
+        {% endfor %}
+        {% endif %}<br>
+      {{form.password.label }}: {{ form.password }}
+      {% if form.password.errors %}
+        {% for error in form.password.errors %}
+          {{ error }}
+        {% endfor %}
+        {% endif %}<br>
+      {{ form.submit }}
     </form>
     <br>
 </div>
