@@ -5,7 +5,7 @@ from flask.ext.script import Manager, Shell, Command
 from flask.ext.migrate import Migrate, MigrateCommand
 
 from flaskfilled import create_app, db
-from flaskfilled.models import Cookie, User
+from flaskfilled.models import Role, User
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -38,9 +38,24 @@ class DBRegUser(Command):
         self.db.session.commit()
 
 
+class DBAdminUser(Command):
+
+    def __init__(self, db):
+        self.db = db
+
+    def run(self):
+        user = User(username='admin')
+        user.password = 'admin'
+        role = Role(name='admin', description='for system admins')
+        user.roles.append(role)
+        self.db.session.add(user)
+        self.db.session.commit()
+
+
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db_init', DBInit(db))
 manager.add_command('db_create_reg_user', DBRegUser(db))
+manager.add_command('db_create_admin', DBAdminUser(db))
 manager.add_command('db', MigrateCommand)
 
 if __name__ == '__main__':

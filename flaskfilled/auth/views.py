@@ -1,6 +1,8 @@
-from flask import render_template, redirect, request, url_for, flash
+from flask import (render_template, redirect, request, url_for, flash,
+                   current_app)
 
 from flask.ext.login import login_user, logout_user, login_required
+from flask.ext.principal import identity_changed, Identity
 
 from . import auth
 from .forms import LoginForm
@@ -14,6 +16,8 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user)
+            identity_changed.send(current_app._get_current_object(),
+                                  identity=Identity(user.user_id))
             next = request.args.get('next')
             return redirect(next or url_for('main.index'))
         else:
